@@ -21,14 +21,16 @@ SOURCES += \
     logooverlay.cpp \
     main.cpp \
     mainwindow.cpp \
-    placeholdersquare.cpp
+    placeholdersquare.cpp \
+    DragEventFilter.cpp
 
 HEADERS += \
     dragframe.h \
     draglabel.h \
     logooverlay.h \
     mainwindow.h \
-    placeholdersquare.h
+    placeholdersquare.h \
+    DragEventFilter.h
 
 FORMS += \
     mainwindow.ui

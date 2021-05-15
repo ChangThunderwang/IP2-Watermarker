@@ -25,6 +25,6 @@ add_executable(IP2Watermarker
         placeholdersquare.cpp
         placeholdersquare.h
         mainwindow.ui
-        )
+        DragEventFilter.cpp DragEventFilter.h SceneDragEventFilter.cpp SceneDragEventFilter.h)
 
 target_link_libraries(IP2Watermarker Qt5::Widgets)

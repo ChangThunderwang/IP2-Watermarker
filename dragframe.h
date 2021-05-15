@@ -6,12 +6,15 @@
 
 class DragFrame : public QFrame
 {
-    Q_OBJECT
+Q_OBJECT
 public:
-    DragFrame(QWidget* parent);
+    DragFrame(QWidget *parent);
+
 protected:
     void dragEnterEvent(QDragEnterEvent *e) override;
+
     void dropEvent(QDropEvent *e) override;
+
 signals:
     void videoDropped(QString);
 

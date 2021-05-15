@@ -4,6 +4,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QDebug>
+
 DragLabel::DragLabel(QWidget *parent) : QLabel(parent)
 {
     setAcceptDrops(true);
@@ -12,14 +13,18 @@ DragLabel::DragLabel(QWidget *parent) : QLabel(parent)
 
 void DragLabel::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->hasUrls() && e->mimeData()->urls().size() == 1) {
+    if (e->mimeData()->hasUrls() && e->mimeData()->urls().size() == 1)
+    {
         auto url = e->mimeData()->urls()[0];
-        if(url.isLocalFile()){
+        if (url.isLocalFile())
+        {
             auto str = url.toLocalFile().toLower();
             qDebug() << str;
-            const QString exts[] = {".png",".jpg",".tiff",".bmp",".gif"};
-            for(const auto &c : exts){
-                if(str.endsWith(c)){
+            const QString exts[] = {".png", ".jpg", ".tiff", ".bmp", ".gif"};
+            for (const auto &c : exts)
+            {
+                if (str.endsWith(c))
+                {
                     e->acceptProposedAction();
                 }
             }

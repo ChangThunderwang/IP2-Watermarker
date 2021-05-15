@@ -5,7 +5,14 @@
 #include <QObject>
 #include <QDebug>
 
-PlaceholderSquare::PlaceholderSquare(int x, int y,int w,int h, QGraphicsItem *parent) : QGraphicsRectItem(x,y,w,h,parent){
+PlaceholderSquare::PlaceholderSquare(int x, int y, int w, int h, QGraphicsItem *parent) : QGraphicsRectItem(
+        x,
+        y,
+        w,
+        h,
+        parent
+)
+{
     QPen pen;
     pen.setColor(Qt::red);
     pen.setStyle(Qt::DashDotLine);
@@ -14,9 +21,6 @@ PlaceholderSquare::PlaceholderSquare(int x, int y,int w,int h, QGraphicsItem *pa
     cursor.setShape(Qt::PointingHandCursor);
     setCursor(cursor);
 }
-
-
-
 
 
 void PlaceholderSquare::mousePressEvent(QGraphicsSceneMouseEvent *event)
