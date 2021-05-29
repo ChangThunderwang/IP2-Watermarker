@@ -36,6 +36,7 @@ private slots:
     void watermarkVideo();
 
 private:
+    void extractFfmpeg();
     QString currentVideo;
     QString currentLogo;
     Ui::MainWindow *ui;
@@ -43,6 +44,10 @@ private:
     QGraphicsPixmapItem *videoPrev;
     QGraphicsScene *graphicsScene;
     DragEventFilter *dragEventFilter;
+    QString getFfmpeg();
+
+    double timeToSeconds(QString duration);
+    void setEnableUi(bool enabled);
 };
 
 #endif // MAINWINDOW_H

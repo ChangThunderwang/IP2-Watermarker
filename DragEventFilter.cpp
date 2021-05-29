@@ -23,8 +23,7 @@ void DragEventFilter::checkEvent(QDropEvent *e)
     }
 }
 
-bool DragEventFilter::eventFilter(QObject *object, QEvent *event)
-{
+bool DragEventFilter::handleDrag(QEvent *event){
     auto eventType = event->type();
     switch (eventType)
     {
@@ -47,6 +46,29 @@ bool DragEventFilter::eventFilter(QObject *object, QEvent *event)
     }
     return true;
 }
+bool DragEventFilter::eventFilter(QObject *object, QEvent *event)
+{
+    return handleDrag(event);
+}
 
-DragEventFilter::DragEventFilter(QObject *parent) : QObject(parent)
-{}
+
+bool DragEventFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+{
+    return handleDrag(event);
+}
+
+QRectF DragEventFilter::boundingRect() const
+{
+    return QRectF();
+}
+
+void DragEventFilter::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+
+}
+
+DragEventFilter::DragEventFilter(QGraphicsItem *parent) : QGraphicsObject(parent)
+{
+
+}
+

@@ -26,7 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     graphicsScene->addItem(videoPrev);
     ui->gv->setVisible(false);
 
-    dragEventFilter = new DragEventFilter(this);
+
+#ifdef Q_OS_WIN
+    extractFfmpeg();
+#endif
+
+    dragEventFilter = new DragEventFilter();
 
 
     overlay = new LogoOverlay(videoPrev, QPixmap(), 0.18, .0125, 75);
@@ -94,13 +99,69 @@ MainWindow::MainWindow(QWidget *parent)
     ui->frame->setAcceptDrops(true);
     ui->selectVideoButton->setAcceptDrops(true);
     videoPrev->setAcceptDrops(true);
+    videoPrev->installSceneEventFilter(dragEventFilter);
 
-    connect(dragEventFilter,&DragEventFilter::videoDropped,this,&MainWindow::setVideo);
+    connect(dragEventFilter, &DragEventFilter::videoDropped, this, &MainWindow::setVideo);
 }
 
+void MainWindow::extractFfmpeg()
+{
+    auto path = QStandardPaths::locate(QStandardPaths::AppDataLocation, "ffmpeg.exe");
+    qDebug() << path;
+    if (path.length() != 0)
+        return;
+
+    auto location = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)[0];
+    if (!QDir(location).exists())
+        QDir().mkdir(location);
+    location += "/ffmpeg.exe";
+    QFile::copy(":/bin/ffmpeg.exe", location);
+    qDebug() << location;
+}
+
+bool fileExists(QString path)
+{
+    QFileInfo check_file(path);
+    // check if path exists and if yes: Is it really a file and no directory?
+    return check_file.exists() && check_file.isFile();
+}
+
+QString MainWindow::getFfmpeg()
+{
+    static QString path;
+    if (path.length() != 0)
+        return path;
+#ifdef Q_OS_WIN
+    path = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)[0] + "/ffmpeg.exe";
+    return path;
+#endif
+#ifdef Q_OS_DARWIN
+    path = "/usr/local/bin/ffmpeg";
+    return path;
+#endif
+#ifdef Q_OS_LINUX
+    path = "/usr/bin/ffmpeg";
+    if(fileExists(path))
+        return path;
+    path = "/usr/local/bin/ffmpeg";
+    if(fileExists(path))
+        return path;
+    path = "/bin/ffmpeg";
+    if(fileExists(path))
+        return path;
+#endif
+}
+
+double MainWindow::timeToSeconds(QString duration)
+{
+    auto split = duration.split(':');
+    return (split[0].toDouble() * 3600 + split[1].toDouble() * 60 + split[2].toDouble());
+}
 
 void MainWindow::watermarkVideo()
 {
+    static double currentVideoDur;
+    currentVideoDur = -1;
     auto ffmpeg = new QProcess;
     auto output = "/Users/shein/Downloads/clip.mp4";
     const auto logoPos = overlay->getLogoPos();
@@ -115,8 +176,9 @@ void MainWindow::watermarkVideo()
     yPos = yPos.arg(ui->paddingSpinBox->value() / 100);
     QString filter = "[1][0]scale2ref=h=min(ih\\,iw)*%1:w=oh*mdar:sws_flags=lanczos[wmark_scaled][base_video];[wmark_scaled]format=argb,colorchannelmixer=aa=%2[wmark_transparent];[base_video][wmark_transparent]overlay=%3:%4";
 
+    setEnableUi(false);
     ffmpeg->start(
-            "/usr/local/bin/ffmpeg", {
+            getFfmpeg(), {
                     "-i",
                     currentVideo,
                     "-i",
@@ -129,8 +191,6 @@ void MainWindow::watermarkVideo()
                     "9999",
                     "-filter_complex",
                     filter.arg(ui->sizeSpinBox->value() / 100).arg(ui->opacitySpinBox->value() / 100).arg(xPos, yPos),
-                    "-c:a",
-                    "libfdk_aac",
                     "-vbr",
                     "5",
                     "-y",
@@ -138,12 +198,53 @@ void MainWindow::watermarkVideo()
             }
     );
     connect(
+            ffmpeg, &QProcess::readyReadStandardError, [=]() {
+                const static QRegExp duration("Duration: ([\\d:\\.]+),");
+                const static QRegExp time("time=([\\d:\\.]+)\\s");
+                auto str = QString(ffmpeg->readAllStandardError());
+                qDebug() << "String read: " << str;
+                if (currentVideoDur == -1 && duration.indexIn(str) != -1)
+                {
+                    auto time = duration.cap(1);
+                    qDebug() << "Dur: " << time;
+                    currentVideoDur = timeToSeconds(time);
+                } else if (time.indexIn(str) != -1)
+                {
+                    auto seconds = timeToSeconds(time.cap(1));
+                    auto percentage = seconds / currentVideoDur;
+                    ui->progressBar->setValue(qRound(percentage * ui->progressBar->maximum()));
+                }
+            }
+    );
+    connect(
             ffmpeg, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=]() {
+                setEnableUi(true);
+                ui->progressBar->setValue(ui->progressBar->maximum());
                 qDebug() << "DONE";
                 qDebug() << ffmpeg->readAllStandardError();
                 delete ffmpeg;
             }
     );
+}
+
+void MainWindow::setEnableUi(bool enabled)
+{
+    QWidget *list[] = {
+            ui->paddingSpinBox,
+            ui->opacitySpinBox,
+            ui->sizeSpinBox,
+            ui->selectVideoButton,
+            ui->watermarkButton,
+            ui->selectLogoButton,
+            ui->useDefaultButton,
+            ui->sizeSlider,
+            ui->paddingSlider,
+            ui->opacitySlider
+    };
+    for (QWidget* i : list){
+        i->setEnabled(enabled);
+    }
+
 }
 
 void MainWindow::logoChange()
@@ -192,7 +293,7 @@ void MainWindow::setVideo(QString filename)
     currentVideo = filename;
     auto ffmpeg = new QProcess();
     ffmpeg->start(
-            "/usr/local/bin/ffmpeg",
+            getFfmpeg(),
             {"-i", filename, "-vf", "thumbnail,scale=w=640:h=360:force_original_aspect_ratio=decrease",
              "-sws_flags", "lanczos+accurate_rnd+full_chroma_int+full_chroma_inp", "-frames:v", "1", "-y", "-f",
              "image2pipe", "-c:v", "ppm", "-an", "-"}
@@ -213,7 +314,6 @@ void MainWindow::setVideo(QString filename)
 
 void MainWindow::setLogo(QString fileName)
 {
-
     QImageReader reader(fileName);
     QImage img = reader.read();
     QPixmap pixmap = QPixmap::fromImage(img);

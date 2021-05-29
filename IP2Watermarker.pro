@@ -35,7 +35,12 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
+CONFIG += resources_big
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    ffmpeg.qrc

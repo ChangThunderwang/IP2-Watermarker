@@ -7,9 +7,9 @@
 
 
 #include <QDropEvent>
-#include <QObject>
+#include <QGraphicsObject>
 
-class DragEventFilter : public QObject
+class DragEventFilter : public QGraphicsObject
 {
     Q_OBJECT
 
@@ -17,9 +17,20 @@ class DragEventFilter : public QObject
 
     static void checkEvent(QDropEvent *e);
 public:
-    DragEventFilter(QObject *parent);
+protected:
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
+
+public:
+    QRectF boundingRect() const override;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+    DragEventFilter(QGraphicsItem *parent = nullptr);
+    bool handleDrag(QEvent *event);
+
 signals:
     void videoDropped(QString);
+
 };
 
 
