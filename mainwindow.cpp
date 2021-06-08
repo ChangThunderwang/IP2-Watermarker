@@ -3,6 +3,7 @@
 #include <QHttpMultiPart>
 
 #include <QString>
+#include <QRegularExpression>
 #include <QImageReader>
 #include <QPixmap>
 #include <QGraphicsScene>
@@ -250,7 +251,10 @@ QString MainWindow::uploadToVidey(QString filename)
     connect(
             reply, &QNetworkReply::uploadProgress, [=](qint64 bytesSent, qint64 bytesTotal) {
                 if (bytesSent == bytesTotal)
+                {
                     statusBar()->showMessage("Waiting for videy.co...");
+                    ui->progressBar->setValue(ui->progressBar->maximum());
+                }
                 else
                 {
                     statusBar()->showMessage(
@@ -364,7 +368,7 @@ QString MainWindow::getExecutable(QString name)
 #endif
 }
 
-double MainWindow::timeToSeconds(QString duration)
+double MainWindow::timeToSeconds(QStringView duration)
 {
     auto split = duration.split(':');
     return (split[0].toDouble() * 3600 + split[1].toDouble() * 60 + split[2].toDouble());
@@ -437,19 +441,21 @@ void MainWindow::watermarkVideo()
 
                 connect(
                         ffmpeg, &QProcess::readyReadStandardError, [=]() {
-                            const static QRegExp duration("Duration: ([\\d:\\.]+),");
-                            const static QRegExp time("time=([\\d:\\.]+)\\s");
+                            const static QRegularExpression duration("Duration: ([\\d:\\.]+),");
+                            const static QRegularExpression time("time=([\\d:\\.]+)\\s");
                             auto str = QString(ffmpeg->readAllStandardError());
                             qDebug() << "FFMPEG OUTPUT:\n" + str;
+                            auto durMatch = duration.globalMatch(str);
+                            auto timeMatch = time.globalMatch(str);
 
-                            if (currentVideoDur == -1 && duration.indexIn(str) != -1)
+                            if (currentVideoDur == -1 && durMatch.hasNext())
                             {
-                                auto time = duration.cap(1);
+                                auto time = durMatch.next().capturedView(1);
 //                                qDebug() << "Dur: " << time;
                                 currentVideoDur = timeToSeconds(time);
-                            } else if (time.indexIn(str) != -1)
+                            } else if (timeMatch.hasNext())
                             {
-                                auto seconds = timeToSeconds(time.cap(1));
+                                auto seconds = timeToSeconds(timeMatch.next().capturedView(1));
 //                                qDebug() << "Time: " << seconds;
                                 auto percentage = seconds / currentVideoDur;
                                 statusBar()->showMessage(

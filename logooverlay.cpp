@@ -17,7 +17,7 @@ LogoOverlay::LogoOverlay(QGraphicsPixmapItem *video, QPixmap logo, double scale,
 {
     this->logo = logo;
     logoImage = new QGraphicsPixmapItem(this->logo.scaledToHeight(getScaledSize(), Qt::SmoothTransformation), video);
-    logoImage->setOffset({qRound(padding * smallerDimension()), qRound(padding * smallerDimension())});
+    logoImage->setOffset({static_cast<qreal>(qRound(padding * smallerDimension())), static_cast<qreal>(qRound(padding * smallerDimension()))});
     logoImage->setOpacity(opacity / 100);
 
     auto p0 = getTopLeftCorner(true, true);
