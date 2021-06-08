@@ -17,7 +17,7 @@ LogoOverlay::LogoOverlay(QGraphicsPixmapItem *video, QPixmap logo, double scale,
 {
     this->logo = logo;
     logoImage = new QGraphicsPixmapItem(this->logo.scaledToHeight(getScaledSize(), Qt::SmoothTransformation), video);
-    logoImage->setOffset({round(padding * smallerDimension()), round(padding * smallerDimension())});
+    logoImage->setOffset({qRound(padding * smallerDimension()), qRound(padding * smallerDimension())});
     logoImage->setOpacity(opacity / 100);
 
     auto p0 = getTopLeftCorner(true, true);
@@ -134,12 +134,12 @@ QPoint LogoOverlay::getTopLeftCornerLogo(bool left, bool top)
 
 int LogoOverlay::getScaledSize()
 {
-    return (int) round(scale * smallerDimension());
+    return (int) qRound(scale * smallerDimension());
 }
 
 int LogoOverlay::getPadding()
 {
-    return (int) round(padding * smallerDimension());
+    return (int) qRound(padding * smallerDimension());
 }
 
 int LogoOverlay::getLogoPos()

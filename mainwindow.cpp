@@ -556,7 +556,7 @@ void MainWindow::watermarkVideo()
                             }
                     );
                 }
-                qDebug() << "Args: " << ffmpeg->arguments();
+                qDebug() << "Command: " << "ffmpeg " + ffmpeg->arguments().join(" ");
             }
     );
     loudnorm->start(
