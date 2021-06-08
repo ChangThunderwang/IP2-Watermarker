@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Network REQUIRED)
 include_directories(.)
 
 add_executable(IP2Watermarker
@@ -28,3 +29,4 @@ add_executable(IP2Watermarker
         DragEventFilter.cpp DragEventFilter.h)
 
 target_link_libraries(IP2Watermarker Qt5::Widgets)
+target_link_libraries(IP2Watermarker Qt5::Network)

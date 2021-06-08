@@ -433,13 +433,15 @@ void MainWindow::watermarkVideo()
                 auto yPos = logoPos / 2 ? y2 : y1;
                 xPos = xPos.arg(ui->paddingSpinBox->value() / 100);
                 yPos = yPos.arg(ui->paddingSpinBox->value() / 100);
-                QString filter = "\"[1][0]scale2ref=h=min(ih\\,iw)*%1:w=oh*mdar:sws_flags=lanczos[wmark_scaled][base_video];[wmark_scaled]format=argb,colorchannelmixer=aa=%2[wmark_transparent];[base_video][wmark_transparent]overlay=%3:%4\"";
+                QString filter = R"([1][0]scale2ref=h=min(ih\,iw)*%1:w=oh*mdar:sws_flags=lanczos[wmark_scaled][base_video];[wmark_scaled]format=argb,colorchannelmixer=aa=%2[wmark_transparent];[base_video][wmark_transparent]overlay=%3:%4)";
 
                 connect(
                         ffmpeg, &QProcess::readyReadStandardError, [=]() {
                             const static QRegExp duration("Duration: ([\\d:\\.]+),");
                             const static QRegExp time("time=([\\d:\\.]+)\\s");
                             auto str = QString(ffmpeg->readAllStandardError());
+                            qDebug() << "FFMPEG OUTPUT:\n" + str;
+
                             if (currentVideoDur == -1 && duration.indexIn(str) != -1)
                             {
                                 auto time = duration.cap(1);
@@ -507,7 +509,7 @@ void MainWindow::watermarkVideo()
                                             yPos
                                     ),
                                     "-af",
-                                    "\"loudnorm=I=-16:TP=-1.5:LRA=11" + str + '"',
+                                    "loudnorm=I=-16:TP=-1.5:LRA=11%1" + str,
                                     "-vbr",
                                     "5",
                                     "-ar",
@@ -546,7 +548,7 @@ void MainWindow::watermarkVideo()
                                             yPos
                                     ),
                                     "-af",
-                                    "\"loudnorm=I=-16:TP=-1.5:LRA=11" + str + '"',
+                                    "loudnorm=I=-16:TP=-1.5:LRA=11" + str,
                                     "-vbr",
                                     "5",
                                     "-ar",
