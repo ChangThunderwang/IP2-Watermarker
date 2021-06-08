@@ -15,6 +15,7 @@ public:
 
     int getLogoPos();
 
+    void setShowPlaceholders(bool show);
 public slots:
 
     void paddingChanged(double newVal);
@@ -27,6 +28,7 @@ public slots:
 
     void videoChanged();
 
+    void moveLogo(int pos);
 private:
     QPoint getTopLeftCorner(bool top, bool left);
 
@@ -43,7 +45,6 @@ private:
 
     QGraphicsPixmapItem *video;
 
-    void moveLogo(int pos);
 
     QPoint getTopLeftCornerLogo(bool left, bool top);
 

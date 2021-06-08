@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include "logooverlay.h"
 #include "DragEventFilter.h"
+#include <QVector>
+#include <QStringList>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -31,11 +34,15 @@ public slots:
 
     void setVideo(QString filename);
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private slots:
 
     void watermarkVideo();
 
+    void setDefaultLogoParams();
 private:
+    QString extractLogo();
     void extractFfmpeg();
     QString currentVideo;
     QString currentLogo;
@@ -44,10 +51,23 @@ private:
     QGraphicsPixmapItem *videoPrev;
     QGraphicsScene *graphicsScene;
     DragEventFilter *dragEventFilter;
-    QString getFfmpeg();
+    QString getExecutable(QString name);
 
     double timeToSeconds(QString duration);
     void setEnableUi(bool enabled);
+    QString getOutputFilename(QString filename);
+    void setupLogos();
+    const QVector<QStringList> logoNames = {
+        {"Standard logo","standard"},
+        {"Standard Logo With Shadow","shadow"},
+        {"Classic Logo","undefeated"},
+        {"nTrepid Logo","ntrepid"},
+        {"Circular Logo","circular"},
+    };
+    void detectLoudNorm();
+
+    QString uploadToVidey(QString filename);
+    QSettings settings;
 };
 
 #endif // MAINWINDOW_H

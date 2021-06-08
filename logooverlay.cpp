@@ -77,6 +77,19 @@ LogoOverlay::LogoOverlay(QGraphicsPixmapItem *video, QPixmap logo, double scale,
     }
 }
 
+void LogoOverlay::setShowPlaceholders(bool show){
+    if(show == false){
+        for(auto x : placeholders)
+            x->hide();
+    }
+    else{
+        for(int i = 0; i < 4; i++){
+            if(i != logoPos){
+                placeholders[i]->show();
+            }
+        }
+    }
+}
 
 void LogoOverlay::moveLogo(int pos)
 {

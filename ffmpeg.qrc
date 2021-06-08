@@ -1,5 +1,18 @@
 <RCC>
     <qresource prefix="/bin">
-        <file>ffmpeg.exe</file>
+<!--        <file>res/ffmpeg.exe</file>
+        <file>res/ffprobe.exe</file>-->
+        <file>res/ffmpeg_mac</file>
+        <file>res/ffprobe_mac</file>
+    </qresource>
+    <qresource prefix="/logos">
+        <file>res/logos/circular.png</file>
+        <file>res/logos/ntrepid.png</file>
+        <file>res/logos/shadow.png</file>
+        <file>res/logos/standard.png</file>
+        <file>res/logos/undefeated.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>res/refresh.png</file>
     </qresource>
 </RCC>
