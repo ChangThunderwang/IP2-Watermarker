@@ -514,7 +514,7 @@ void MainWindow::watermarkVideo()
                                             yPos
                                     ),
                                     "-af",
-                                    "loudnorm=I=-16:TP=-1.5:LRA=11%1" + str,
+                                    "loudnorm=I=-16:TP=-1.5:LRA=11" + str,
                                     "-vbr",
                                     "5",
                                     "-ar",
