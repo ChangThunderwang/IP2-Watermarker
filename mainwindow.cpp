@@ -368,7 +368,7 @@ QString MainWindow::getExecutable(QString name)
 #endif
 }
 
-double MainWindow::timeToSeconds(QStringView duration)
+double MainWindow::timeToSeconds(QString duration)
 {
     auto split = duration.split(':');
     return (split[0].toDouble() * 3600 + split[1].toDouble() * 60 + split[2].toDouble());
@@ -450,12 +450,12 @@ void MainWindow::watermarkVideo()
 
                             if (currentVideoDur == -1 && durMatch.hasNext())
                             {
-                                auto time = durMatch.next().capturedView(1);
+                                auto time = durMatch.next().captured(1);
 //                                qDebug() << "Dur: " << time;
                                 currentVideoDur = timeToSeconds(time);
                             } else if (timeMatch.hasNext())
                             {
-                                auto seconds = timeToSeconds(timeMatch.next().capturedView(1));
+                                auto seconds = timeToSeconds(timeMatch.next().captured(1));
 //                                qDebug() << "Time: " << seconds;
                                 auto percentage = seconds / currentVideoDur;
                                 statusBar()->showMessage(
@@ -484,8 +484,7 @@ void MainWindow::watermarkVideo()
                 );
                 probe->waitForFinished();
                 probe->setParent(ffmpeg);
-                auto time = QString(probe->readLine());
-                time.chop(1);
+                auto time = QString(probe->readLine()).trimmed();
                 qDebug() << "FFPROBE TIME: " << time.toDouble();
                 if (time.toDouble() == 0 || time.toDouble() >= 2)
                 {

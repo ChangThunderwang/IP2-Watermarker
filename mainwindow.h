@@ -53,7 +53,7 @@ private:
     DragEventFilter *dragEventFilter;
     QString getExecutable(QString name);
 
-    double timeToSeconds(QStringView duration);
+    double timeToSeconds(QString duration);
     void setEnableUi(bool enabled);
     QString getOutputFilename(QString filename);
     void setupLogos();
